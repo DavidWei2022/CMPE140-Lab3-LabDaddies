@@ -66,6 +66,13 @@ dmem (
 .data (dmem_data)
 );
     
+    always @*
+    always @ (posedge clk or rst_n)
+    begin 
+    
+    end
+    
+    
     
     
 endmodule
