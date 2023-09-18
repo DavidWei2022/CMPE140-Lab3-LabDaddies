@@ -1,7 +1,12 @@
-
+*.pd
 *.bat
 *.log
 *.log
 *.wdb
 *.rlx
 *.exe
+*.rtti
+*.xdbg
+*.mem
+*xpr
+*obj
