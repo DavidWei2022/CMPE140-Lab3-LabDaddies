@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Product Version: Vivado v2023.1 (64-bit)                              -->
+<!-- Product Version: Vivado v2023.1.1 (64-bit)                              -->
 <!--                                                                         -->
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="63" Path="C:/Users/Ajay/Documents/repos/CMPE 140/Lab 3/CMPE140-Lab3-LabDaddies/CMPE140 Lab3/CMPE140 Lab3.xpr">
+<Project Product="Vivado" Version="7" Minor="63" Path="C:/Users/31155/OneDrive/140 Lab3/CMPE140-Lab3-LabDaddies/CMPE140 Lab3/CMPE140 Lab3.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="cd8db08df8e042059ab0f06da230841c"/>
@@ -58,7 +58,7 @@
     <Option Name="IPUserFilesDir" Val="$PIPUSERFILESDIR"/>
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
-    <Option Name="WTXSimLaunchSim" Val="0"/>
+    <Option Name="WTXSimLaunchSim" Val="9"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -120,6 +120,22 @@
           <Attr Name="ImportTime" Val="1694672698"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/inputs/addi_hazards.dat">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../inputs/addi_hazards.dat"/>
+          <Attr Name="ImportTime" Val="1694672627"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/inputs/addi_nohazard.dat">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../inputs/addi_nohazard.dat"/>
+          <Attr Name="ImportTime" Val="1694671395"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>

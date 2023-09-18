@@ -23,10 +23,23 @@ module cpu(
     output [31:0] dmem_addr,
     output dmem_wen
     );
-    
+  
+ 
     //Fetch
+    integer fd;  
     always @ (*)
     begin
+    $display("hi");
+//    fd = $fopen("addi_nohazard.dat", "r");  
+//    if(fd)
+//        begin
+//        $fdisplay(fd,"hi");
+//        end
+//    else
+//        begin
+//        $fdisplay(fd,"failure to open file");
+//        end
+//    $fclose(fd); 
     end
     
     always @ (posedge clk)
