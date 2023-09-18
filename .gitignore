@@ -2,27 +2,6 @@
 *.bat
 *.log
 *.log
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/compile.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/elaborate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/simulate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/tb_behav.wdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimk.exe
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimkernel.log
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/cpu.sdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/xil_defaultlib.rlx
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/compile.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/elaborate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/simulate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/tb_behav.wdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimk.exe
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimkernel.log
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/cpu.sdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/xil_defaultlib.rlx
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/compile.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/elaborate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/simulate.bat
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/tb_behav.wdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimk.exe
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/tb_behav/xsimkernel.log
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/cpu.sdb
-CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xsim.dir/xil_defaultlib/xil_defaultlib.rlx
+*.wdb
+*.rlx
+*.exe
