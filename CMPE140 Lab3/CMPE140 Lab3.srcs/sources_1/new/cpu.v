@@ -24,38 +24,30 @@ module cpu(
     output dmem_wen
     );
   
-    //Fetch File
+
+ //Fetch File
     reg [7:0] mem [255:0];
     initial
         begin
-            $readmemb("././././inputs/addi_nohazard.dat", mem);
+            $readmemb("addi_nohazard.dat", mem);
+
         end
 
     integer fd;
     initial
         begin
-            fd = $fopen("././././inputs/addi_nohazard.dat", "r");
+
+            fd = $fopen("addi_nohazard.dat", "r");
+
 
             if(fd)  $display("File successfully opened!");
             else    $display("File NOT successfully opened!");
         end
+
        
-    //Fetch
-    integer fd;  
-    always @ (*)
-    begin
-    $display("hi");
-//    fd = $fopen("addi_nohazard.dat", "r");  
-//    if(fd)
-//        begin
-//        $fdisplay(fd,"hi");
-//        end
-//    else
-//        begin
-//        $fdisplay(fd,"failure to open file");
-//        end
-//    $fclose(fd); 
-    end
+
+
+
     
     always @ (posedge clk)
     begin
