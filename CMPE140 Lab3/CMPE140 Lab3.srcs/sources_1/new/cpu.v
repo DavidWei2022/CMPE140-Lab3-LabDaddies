@@ -25,22 +25,22 @@ module cpu(
     );
   
  
-    //Fetch
-    integer fd;  
-    always @ (*)
-    begin
-    $display("hi");
-//    fd = $fopen("addi_nohazard.dat", "r");  
-//    if(fd)
-//        begin
-//        $fdisplay(fd,"hi");
-//        end
-//    else
-//        begin
-//        $fdisplay(fd,"failure to open file");
-//        end
-//    $fclose(fd); 
-    end
+
+ //Fetch File
+    reg [7:0] mem [255:0];
+    initial
+        begin
+            $readmemb("addi_nohazard.dat", mem);
+        end
+
+    integer fd;
+    initial
+        begin
+            fd = $fopen("addi_nohazard.dat", "r");
+
+            if(fd)  $display("File successfully opened!");
+            else    $display("File NOT successfully opened!");
+        end
     
     always @ (posedge clk)
     begin
