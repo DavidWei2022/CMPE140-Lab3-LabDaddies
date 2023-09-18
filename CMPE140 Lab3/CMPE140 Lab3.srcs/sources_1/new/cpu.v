@@ -23,4 +23,49 @@ module cpu(
     output [31:0] dmem_addr,
     output dmem_wen
     );
+    
+    //Fetch
+    always @ (*)
+    begin
+    end
+    
+    always @ (posedge clk)
+    begin
+    end
+    
+    //Decode
+    always @ (*)
+    begin
+    end
+    
+    always @ (posedge clk)
+    begin
+    end
+    
+    //Execute
+    always @ (*)
+    begin
+    end
+    
+    always @ (posedge clk)
+    begin
+    end
+    
+    //Memory access
+    always @ (*)
+    begin
+    end
+    
+    always @ (posedge clk)
+    begin
+    end
+    
+    //Write back
+    always @ (*)
+    begin
+    end
+    
+    always @ (posedge clk)
+    begin
+    end
 endmodule
