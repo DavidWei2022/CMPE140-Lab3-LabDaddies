@@ -15,6 +15,12 @@
 
 
 module cpu(
-
+    input rst_n,
+    input clk,
+    input [31:0] imem_insn, 
+    inout [31:0] dmem_data, 
+    output [31:0] imem_addr,
+    output [31:0] dmem_addr,
+    output dmem_wen
     );
 endmodule
