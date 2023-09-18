@@ -1,18 +1,12 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Michelle Fang, Matthew Malvini, Ajay Walia, David Wei 
 // 
 // Create Date: 09/18/2023 01:21:20 PM
-// Design Name: 
 // Module Name: cpu
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
+// Project Name: Lab 3 Group Project
 // Description: 
-// 
-// Dependencies: 
-// 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
