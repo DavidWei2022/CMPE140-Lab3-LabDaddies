@@ -37,8 +37,11 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
             else    $display("File NOT successfully opened!");
         end
 
-       
-
+    initial
+        begin
+            for(integer i = 0; i < 28; i = i+1)
+                $display("%b",mem[i]);
+        end
 
 
     
