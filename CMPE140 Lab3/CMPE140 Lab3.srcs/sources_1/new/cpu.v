@@ -35,6 +35,7 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
 
             if(fd)  $display("File successfully opened!");
             else    $display("File NOT successfully opened!");
+            $fclose();
         end
 
     initial
