@@ -1,3 +1,4 @@
+#
 *.pd
 *.bat
 *.log
@@ -39,3 +40,4 @@ CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xvlog.log
 CMPE140 Lab3/CMPE140 Lab3.sim/sim_1/behav/xsim/xvlog.pb
 CMPE140 Lab3/CMPE140 Lab3.xpr
 *.wpc
+CMPE140 Lab3/CMPE140 Lab3.cache/wt/project.wpc
