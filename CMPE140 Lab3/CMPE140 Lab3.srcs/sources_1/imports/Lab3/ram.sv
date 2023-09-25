@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module ram #(addr_width = 4, data_width = 4, string init_file = "dummy.dat" )
+module ram #(addr_width = 4, data_width = 4, string init_file = "addi_nohazard.dat" )
 (
 input rst_n,
 input clk,

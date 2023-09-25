@@ -17,8 +17,14 @@
 module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data, 
     output [31:0] imem_addr,output [31:0] dmem_addr,output dmem_wen);
   
+    assign imem_insn = 32'b0;
+    assign imem_addr = 32'b0;
     //Fetch File
     rom fetch(imem_insn, imem_addr);
+    
+    initial begin
+    $display("Instruction: %b",imem_addr);
+    end
     
     always @ (posedge clk)
     begin
