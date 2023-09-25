@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "rom.sv"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: Michelle Fang, Matthew Malvini, Ajay Walia, David Wei 
