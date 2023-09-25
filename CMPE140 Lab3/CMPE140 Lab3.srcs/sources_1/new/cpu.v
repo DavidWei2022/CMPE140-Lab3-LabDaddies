@@ -21,7 +21,7 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
   
   
 //module rom #(addr_width = 32, data_width = 32, string init_file = "dummy.dat" )  
-    rom (32,32,"addi_nohazard.dat");
+    rom fetch (32,32,"addi_nohazard.dat");
  //Fetch File
 //    reg [7:0] mem [255:0];
 //    initial
