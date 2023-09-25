@@ -19,35 +19,7 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
   
   
   
-//module rom #(addr_width = 32, data_width = 32, string init_file = "dummy.dat" )  
-    rom fetch (32,32,"addi_nohazard.dat");
- //Fetch File
-//    reg [7:0] mem [255:0];
-//    initial
-//        begin
-//            $readmemb("addi_nohazard.dat", mem);
-
-//        end
-
-//    integer fd;
-//    initial
-//        begin
-
-//            fd = $fopen("addi_nohazard.dat", "r");
-
-
-//            if(fd)  $display("File successfully opened!");
-//            else    $display("File NOT successfully opened!");
-//            $fclose();
-//        end
-
-//    initial
-//        begin
-//            for(integer i = 0; i < 28; i = i+1)
-//                $display("%b",mem[i]);
-//        end
-
-
+    rom fetch(imem_insn, imem_addr);
     
     always @ (posedge clk)
     begin
