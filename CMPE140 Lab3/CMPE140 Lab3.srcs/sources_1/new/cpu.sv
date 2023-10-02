@@ -52,8 +52,17 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
     end
     
     //Decode
+    reg [6:0] opcode;
+    reg [6:0] funct7;
+    reg [2:0] funct3;
+    
+    assign opcode=data[6:0];
+    
     always @ (*)
     begin
+       
+    
+    
     end
     
     always @ (posedge clk)
