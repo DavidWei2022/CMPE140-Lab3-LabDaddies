@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ms / 1ns
 module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data, 
     output [31:0] imem_addr,output [31:0] dmem_addr,output dmem_wen);
     reg [31:0] data[31:0];
@@ -77,7 +77,6 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
     for(int i =0;i<7;i=i+1)
         begin
             case(opcode[i])
-               
                 7'b0010011: begin //I-type
                     $display("the opcode is %b",opcode[i]);
                   if (funct3[i] == 3'b000) begin
@@ -90,34 +89,44 @@ module cpu(input rst_n, input clk,input [31:0] imem_insn, inout [31:0] dmem_data
         end
     end
     //execute    
-    always @ (*)
-    begin
-        integer ii =0;
-//    for(int i =0;i<7;i=i+1)begin
-//        while(ii<7)begin
-       rd[0] = rs1[0]+imm[0];
-       $display("rd is %b", rd[0]);
-       $display("count is %d",count);
-       count = count+1;
-//       ii = ii+1;
-//       end
-    end
-    
+
     always @ (posedge clk)
     begin
 
        for(integer i=0; i<7;i=i+1)begin
-        rd[i]=data[i][11:7];
-        rs1[i]=data[i][19:15]; 
-        imm[i]=data[i][31:20];
-        end
+            rd[i]=data[i][11:7];
+            rs1[i]=data[i][19:15]; 
+            imm[i]=data[i][31:20];
+            
+        
+            end
+       
     end
     
-
+    always @ (*)
+    begin
+    for(int i =0;i<7;i=i+1)
+    begin
+     case(ALU_Control[i])
+            7'b00000000:begin
+            if(count ==0)
+            begin
+            rd[i] = rs1[i]+imm[i];
+            $display("rd is %b", rd[i]);
+            end
+     end
+    endcase
+       end    
+       count = count+1;
+    end
     
     //Memory access
     always @ (*)
     begin
+        if(count ==0)
+        begin
+        $display("hi");
+        end
     end
     
     always @ (posedge clk)
