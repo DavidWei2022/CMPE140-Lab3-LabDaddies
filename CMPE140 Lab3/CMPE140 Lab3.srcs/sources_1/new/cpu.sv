@@ -16,7 +16,6 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
     reg [4:0] rd_reg, rd_final; //defining registers to hold values along with hazard detection
     reg [4:0] rd_previous;
     integer stall;
-    integer i;
     integer count;
     integer i;
     integer PC;
@@ -56,8 +55,8 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
         else begin 
             
                 if(stall != 1) begin //entering fetch phase of pipeline
-                    clock_counter <= clock_counter++;
-                    PC <= PC++;
+                    clock_counter <= clock_counter + 1;
+                    PC <= PC + 1;
                     $display("Clock counter is...%b", clock_counter);
                     imem_addr_reg <= imem_addr;
                     imem_insn_reg <= imem_insn;
@@ -83,7 +82,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
 
             always @(posedge clk) begin
                 if(stall != 1) begin //entering decode phase of pipeline
-                     clock_counter <= clock_counter++;
+                     clock_counter <= clock_counter + 1;
                     // $display("Clock counter is...%b", clock_counter);
                     if(imem_insn_reg != 8'hxxxxxxxx) begin //handling I-type      
                         immed <= imem_insn_reg[31:20];
@@ -105,7 +104,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                 
                 if(rd_previous == rs1) begin //handling hazards
                     stall <= 1;
-                    count <= count++;
+                    count <= count + 1;
                     //$display("Stall value is...%d",clock_counter);
                  end 
                  else begin
@@ -119,7 +118,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
 
             always @(posedge clk) begin
                 if(stall != 1) begin //entering execute phase of pipeline
-                    clock_counter <= clock_counter++;
+                    clock_counter <= clock_counter + 1;
                     //$display("Clock counter is...%b", clock_counter);
                     case (opcode[6:0])
                         7'b0010011 : begin //defining addi opcode
@@ -150,7 +149,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                 
                 always @(posedge clk) begin
                 if(stall != 1) begin //entering mem access phase of pipeline
-                     clock_counter <= clock_counter++;
+                     clock_counter <= clock_counter + 1;
                   //$display("Clock counter is...%b", clock_counter);
                   $fdisplay(file_2,"Register number is...%h", rd);
                   $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
@@ -164,7 +163,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                 
                 always @(posedge clk) begin      
                 if(stall != 1) begin //entering write back phase of pipeline
-                    clock_counter <= clock_counter++;
+                    clock_counter <= clock_counter + 1;
                     //$display("Clock counter is...%b", clock_counter);
                     //rd_write[rd] <= rd_reg;
                     rd_final <= rd_reg;
