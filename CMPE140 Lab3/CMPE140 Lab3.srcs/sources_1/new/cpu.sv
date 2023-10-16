@@ -10,6 +10,8 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
     reg [6:0] opcode; //defining all parameters for I-type instructions
     reg [4:0] rd;
     reg [2:0] func3;
+    reg [6:0] func7;
+    reg [4:0] shamt; 
     reg [4:0] rs1;
     reg [11:0] immed;
 
@@ -88,6 +90,8 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                         immed <= imem_insn_reg[31:20];
                         rs1 <= imem_insn_reg[19:15];
                         func3 <= imem_insn_reg[14:12];
+                        func7 <= imem_insn_reg[31:25];
+                        shamt <= imem_insn_reg[24:20];
                         rd <= imem_insn_reg[11:7]; 
                         opcode <= imem_insn_reg[6:0];
                         rd_previous <= rd;
@@ -122,17 +126,142 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                     //$display("Clock counter is...%b", clock_counter);
                     case (opcode[6:0])
                         7'b0010011 : begin //defining addi opcode
-                            addi = 1'b1; 
-                            if(rd_write[rd] === 32'bx) begin //if there exist no value
-                            rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } + rs1;
-                            rd_reg<={ {20{immed[11]}}, {immed[11:0]} } + rs1;
-                        end
-                        else begin
-                            rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } + rd_write[rs1];
-                            rd_reg<={ {20{immed[11]}}, {immed[11:0]} } + rd_write[rs1];
-                        end
-                            //rd_reg <= immed + rs1;
-                            $display("rd_reg: %b", rd_reg);
+                        
+                        if (func3 == 3'b000)
+                                begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } + rs1;
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } + rs1;
+                                end
+                                else begin
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } + rd_write[rs1];
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } + rd_write[rs1];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                         
+                        else if (func3 == 3'b010) //slti signed
+                               begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 < { {20{immed[11]}}, {immed[11:0]} }? 1 : 0;
+                                    rd_reg<= rs1 < { {20{immed[11]}}, {immed[11:0]} }? 1 : 0;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] < { {20{immed[11]}}, {immed[11:0]} }? 1 : 0;
+                                    rd_reg<= rd_write[rs1] < { {20{immed[11]}}, {immed[11:0]} }? 1 : 0;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                                
+                         else if (func3 == 3'b011) // slti unsigned
+                                begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 < { {20{immed[11]}}, {immed[11:0]} } ? 1 : 0;
+                                    rd_reg<= rs1 < { {20{immed[11]}}, {immed[11:0]} } ? 1 :0;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] < { {20{immed[11]}}, {immed[11:0]} } ? 1:0;
+                                    rd_reg<= rd_write[rs1] < { {20{immed[11]}}, {immed[11:0]} } ? 1:0;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                            
+                         else if (func3 == 3'b100) //xor immediate
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } ^ rs1;
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } ^ rs1;
+                                end
+                                else begin
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } ^ rd_write[rs1];
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } ^ rd_write[rs1];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                            
+                         else if (func3 == 3'b110) //or immediate 
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } | rs1;
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } | rs1;
+                                end
+                                else begin
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } | rd_write[rs1];
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } | rd_write[rs1];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                          
+                         else if (func3 == 3'b111) //and immediate 
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } & rs1;
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } & rs1;
+                                end
+                                else begin
+                                    rd_write[rd]<={ {20{immed[11]}}, {immed[11:0]} } & rd_write[rs1];
+                                    rd_reg<={ {20{immed[11]}}, {immed[11:0]} } & rd_write[rs1];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                                
+                         else if (func3 == 3'b001 && func7 == 7'b0000000) //slli 
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 << shamt;
+                                    rd_reg<= rs1 << shamt;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] << shamt;
+                                    rd_reg<= rd_write[rs1] << shamt;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                         
+                         else if (func3 == 3'b101 && func7 == 7'b0000000) //srli 
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 >> shamt;
+                                    rd_reg<= rs1 >> shamt;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] >> shamt;
+                                    rd_reg<= rd_write[rs1] >> shamt;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end
+                          
+                         else if (func3 == 3'b101 && func7 == 7'b01000000) //srai 
+                                 begin 
+                                 addi = 1'b1; 
+                                    if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 >>> shamt;
+                                    rd_reg<= rs1 >>> shamt;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] >>> shamt;
+                                    rd_reg<= rd_write[rs1] >>> shamt;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                                end  
+                          
                         end    
                         default: begin
                             addi = 1'b0;    
