@@ -43,6 +43,8 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
              opcode <= 7'b0;
              clock_counter <= 16'b0;
              func3 <= 3'b0;
+             func7 <= 7'b0000000;
+             shamt <= 5'b00000;
              rs1 <= 5'b0;
              immed <= 12'b0;
              rd_reg <= 5'b0;
@@ -247,7 +249,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                                     $display("rd_reg: %b", rd_reg);
                                 end
                           
-                         else if (func3 == 3'b101 && func7 == 7'b01000000) //srai 
+                         else if (func3 == 3'b101 && func7 == 7'b0100000) //srai 
                                  begin 
                                  addi = 1'b1; 
                                     if(rd_write[rd] === 32'bx) begin //if there exist no value
