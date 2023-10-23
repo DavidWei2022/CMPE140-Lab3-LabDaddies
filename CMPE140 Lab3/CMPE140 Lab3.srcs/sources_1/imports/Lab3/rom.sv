@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module rom #(addr_width = 32, data_width = 32, string init_file = "addi_nohazard.dat" )
+module rom #(addr_width = 32, data_width = 32, string init_file = "r_type.dat" )
 (
 input [addr_width-1:0]addr,
 output [data_width-1:0]data

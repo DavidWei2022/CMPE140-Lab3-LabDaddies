@@ -13,6 +13,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
     reg [6:0] func7;
     reg [4:0] shamt; 
     reg [4:0] rs1;
+    reg [4:0] rs2;
     reg [11:0] immed12;
     reg [31:0] ALU;
 
@@ -45,6 +46,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
              clock_counter <= 16'b0;
              func3 <= 3'b0;
              func7 <= 7'b0000000;
+             rs2<=5'b00000;
              shamt <= 5'b00000;
              rs1 <= 5'b0;
              immed12 <= 12'b0;
@@ -93,7 +95,158 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                     if(imem_insn_reg != 8'hxxxxxxxx) begin //handling I-type      
                         begin
                     //opcode <= instr[6:0];
-                    case(imem_insn_reg[6:0])
+                  case(imem_insn_reg[6:0])
+                   7'b0110011:
+                        begin
+                            opcode <= imem_insn_reg[6:0];
+                            func3 <= imem_insn_reg[14:12];
+                            immed12 <= 12'bx;
+                            rs1 <= imem_insn_reg[19:15];
+                            rs2 <= imem_insn_reg[24:20];
+                            rd <= imem_insn_reg[11:7];
+                            func7 <= imem_insn_reg[31:25];//0000000
+                            shamt <= 5'bx;//empty not in use
+     
+                        
+                            if(func3 == 000&& func7 == 0000000)//add
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + rs2;
+                                    ALU<= rs1 + rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[rs2];
+                                    ALU<= rd_write[rs1] + rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);   
+                            end
+                            
+                            else if (func3 == 000 && func7 == 0100000)//sub
+                            begin
+                             if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 - rs2;
+                                    ALU<= rs1 - rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] - rd_write[rs2];
+                                    ALU<= rd_write[rs1] - rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                            end
+                            
+                            else if (func3 == 001&& func7 == 0000000)//sll
+                            begin
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 << rs2;
+                                    ALU<= rs1 << rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] << rd_write[rs2];
+                                    ALU<= rd_write[rs1] << rd_write[rs2] ;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                            end
+                            
+                            else if(func3==010&& func7 == 0000000)//slt
+                            begin
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 < rs2 ? 1:0;
+                                    ALU<= rs1 < rs2 ? 1:0;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] < rd_write[rs2] ? 1:0;
+                                    ALU<= rd_write[rs1] < rd_write[rs2] ? 1:0 ;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                            end
+                            
+                            else if(func3==011&& func7 == 0000000)//sltu
+                            begin
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 < rs2 ? 1:0;
+                                    ALU<= rs1 < rs2 ? 1:0;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] < rd_write[rs2] ? 1:0;
+                                    ALU<= rd_write[rs1] < rd_write[rs2] ? 1:0 ;
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);
+                            end
+                            
+                            if(func3 == 100&& func7 == 0000000)//xor
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 ^ rs2;
+                                    ALU<= rs1 ^ rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] ^ rd_write[rs2];
+                                    ALU<= rd_write[rs1] ^ rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);   
+                            end
+                            
+                            if(func3 == 101&& func7 == 0000000)//srl
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 >> rs2;
+                                    ALU<= rs1 >> rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] >> rd_write[rs2];
+                                    ALU<= rd_write[rs1] >> rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);   
+                            end
+                            
+                            if(func3 == 101 && func7 == 0100000)//sra
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 >>> rs2;
+                                    ALU<= rs1 >>> rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] >>> rd_write[rs2];
+                                    ALU<= rd_write[rs1] >>> rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);   
+                            end
+                            
+                            if(func3 == 110&& func7 == 0000000)//or
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 | rs2;
+                                    ALU<= rs1 | rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] | rd_write[rs2];
+                                    ALU<= rd_write[rs1] | rd_write[rs2];
+                                end
+                                    //rd_reg <= immed + rs1;
+                                    $display("rd_reg: %b", rd_reg);   
+                            end
+                            if(func3 == 111&& func7 == 0000000)//and
+                            begin
+                                if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 & rs2;
+                                    ALU<= rs1 & rs2;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] & rd_write[rs2];
+                                    ALU<= rd_write[rs1] & rd_write[rs2];
+                                end 
+                            end
+                        end   
+
+                   
                         7'b0010011 : //opcode for i - type instructions
                         begin
                             case(imem_insn_reg[14:12])//funct3
@@ -161,7 +314,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                     //$display("Clock counter is...%b", clock_counter);
                     case (opcode[6:0])
                         7'b0010011 : begin //defining addi opcode
-                        
+         
                         if (func3 == 3'b000)
                                 begin 
                                  addi = 1'b1; 
@@ -298,10 +451,16 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                                 end  
                           
                         end    
+                        
+                       
                         default: begin
                             addi = 1'b0;    
                         end     
                     endcase
+                     
+                    
+                    
+                    
                    $fdisplay(file_2,"Register number is...%h", rd);
                    $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
                 end
