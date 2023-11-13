@@ -15,7 +15,11 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
     reg [4:0] rs1;
     reg unsigned [4:0] rs2;
     reg [11:0] immed12;
-    reg [31:0] ALU;
+    reg [31:0] ALU, Data;
+    
+    //load and store instruction
+    reg [15:0] immed16;
+    reg [31:0] immed32;
 
     reg [4:0] rd_reg, rd_final; //defining registers to hold values along with hazard detection
     reg [4:0] rd_previous;
@@ -51,6 +55,8 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
              shamt <= 5'b00000;
              rs1 <= 5'b0;
              immed12 <= 12'b0;
+             immed16 <= 16'b0;
+             immed32 <= 32'b0;
              ALU <= 32'b0;
              rd_reg <= 5'b0;
              rd_final <= 5'b0;
@@ -97,7 +103,29 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                         begin
                     //opcode <= instr[6:0];
                   case(imem_insn_reg[6:0])
-                   7'b0110011:
+                    7'b0000011: //load-type
+                    begin
+                        opcode <= imem_insn_reg[6:0];
+                        func3 <= imem_insn_reg[14:12];
+                        immed12 <= imem_insn_reg[31:20];
+                        rs1 <= imem_insn_reg[19:15];
+                        rd <= imem_insn_reg[11:7];
+                        func7 <= 7'bx;//empty not in use
+                        shamt <= 5'bx;//empty not in use
+                    end
+                    
+                    7'b0100011: //store-type
+                    begin
+                    opcode <= imem_insn_reg[6:0];
+                    func3 <= imem_insn_reg[14:12];
+                    immed12 <= 12'bx;//empty not in use
+                    rs1 <= imem_insn_reg[19:15];
+                    rd <= imem_insn_reg[11:7];//imed[4:0]
+                    func7 <= imem_insn_reg[31:25];//0000000
+                    rs2 <= imem_insn_reg[24:20];
+                    end
+
+                    7'b0110011: //r-type
                         begin
                             opcode <= imem_insn_reg[6:0];
                             func3 <= imem_insn_reg[14:12];
@@ -175,6 +203,116 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                     clock_counter <= clock_counter + 1;
                     //$display("Clock counter is...%b", clock_counter);
                     case (opcode[6:0])
+                        7'b0000011://load-type
+                        begin 
+                            if(func3 == 3'b000)//lb
+                            begin
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + immed12;
+                                    ALU<= rs1 + immed12;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[immed12];
+                                    ALU<= rd_write[rs1] + rd_write[immed12];
+                                end
+                            
+                            end
+                            if(func3 == 3'b001)//lh
+                            begin
+                            immed16[11:0] <= immed12[11:0];
+                            immed16[15:12] <= {4{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + immed16;
+                                    ALU<= rs1 + immed16;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[immed16];
+                                    ALU<= rd_write[rs1] + rd_write[immed16];
+                                end
+                            end 
+                            if(func3 == 3'b010)//lw
+                            begin
+                            immed32[11:0] <= immed12[11:0];
+                            immed32[31:12] <= {20{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + immed32;
+                                    ALU<= rs1 + immed32;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[immed32];
+                                    ALU<= rd_write[rs1] + rd_write[immed32];
+                                end
+                            end 
+                            if(func3 == 3'b100)//lbu
+                            begin
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + immed12;
+                                    ALU<= rs1 + immed12;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[immed12];
+                                    ALU<= rd_write[rs1] + rd_write[immed12];
+                                end
+                            end 
+                            if(func3 == 3'b101)//lhu
+                            begin
+                            immed16[11:0] <= immed12[11:0];
+                            immed16[15:12] <= {4{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    rd_write[rd]<= rs1 + immed16;
+                                    ALU<= rs1 + immed16;
+                                end
+                                else begin
+                                    rd_write[rd]<= rd_write[rs1] + rd_write[immed16];
+                                    ALU<= rd_write[rs1] + rd_write[immed16];
+                                end
+                            end
+                        end
+                        
+                        7'b0100011://store-type
+                        begin
+                            if(func3 == 3'b000)//sb
+                            begin
+                            immed32[11:0] <= immed12[11:0];
+                            immed32[31:12] <= {20{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    ALU<= rs1 + immed32;
+                                    Data <= rs2;
+                                end
+                                else begin
+                                    ALU<= rd_write[rs1] + rd_write[immed32];
+                                    Data <= rd_write[rs2][7:0];
+                                end 
+                            end
+                            if(func3 == 3'b001)//sh
+                            begin
+                               immed32[11:0] <= immed12[11:0];
+                            immed32[31:12] <= {20{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    ALU<= rs1 + immed32;
+                                    Data <= rs2;
+                                end
+                                else begin
+                                    ALU<= rd_write[rs1] + rd_write[immed32];
+                                    Data <= rd_write[rs2][15:0];
+                                end 
+                            end
+                            if(func3 == 3'b010)//sw
+                            begin
+                            immed32[11:0] <= immed12[11:0];
+                            immed32[31:12] <= {20{immed12[11]}};
+                            if(rd_write[rd] === 32'bx) begin //if there exist no value
+                                    ALU<= rs1 + immed32;
+                                    Data <= rs2;
+                                end
+                                else begin
+                                    ALU<= rd_write[rs1] + rd_write[immed32];
+                                    Data <= rd_write[rs2][31:0];
+                                end 
+                            end
+                        end  
+
+                    
                         7'b0110011://r_type
                         begin
                             if(func3 == 3'b000 && func7 == 7'b0000000)//add
