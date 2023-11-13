@@ -1,6 +1,6 @@
 `timescale 1ms / 1ns
 module cpu(input rst_n,input clk,output reg [31:0] imem_addr,input reg [31:0] imem_insn,
-output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
+output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output reg [3:0] byte_en );
     
     reg[15:0] clock_counter; //incrementing counter by 1 during each pipeline phase 
     reg [31:0]imem_addr_reg, imem_insn_reg, dmem_addr_reg, dmem_data_reg;
@@ -275,6 +275,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                             begin
                             immed32[11:0] <= immed12[11:0];
                             immed32[31:12] <= {20{immed12[11]}};
+                            byte_en <= 4'b0001;
                             if(rd_write[rd] === 32'bx) begin //if there exist no value
                                     ALU<= rs1 + immed32;
                                     Data <= rs2;
@@ -286,8 +287,9 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                             end
                             if(func3 == 3'b001)//sh
                             begin
-                               immed32[11:0] <= immed12[11:0];
+                            immed32[11:0] <= immed12[11:0];
                             immed32[31:12] <= {20{immed12[11]}};
+                            byte_en <= 4'b0011;
                             if(rd_write[rd] === 32'bx) begin //if there exist no value
                                     ALU<= rs1 + immed32;
                                     Data <= rs2;
@@ -301,6 +303,7 @@ output reg [31:0] dmem_addr,inout [31:0] dmem_data, output reg dmem_wen);
                             begin
                             immed32[11:0] <= immed12[11:0];
                             immed32[31:12] <= {20{immed12[11]}};
+                            byte_en <= 4'b1111;
                             if(rd_write[rd] === 32'bx) begin //if there exist no value
                                     ALU<= rs1 + immed32;
                                     Data <= rs2;

@@ -13,13 +13,13 @@
 // 
 // Dependencies: 
 // 
-// Revision: 1.0
+// Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-//ajay
+
 module tb(
     );
     
@@ -43,6 +43,7 @@ wire [word_size-1:0] imem_insn;
 wire [address_size-1:0] dmem_addr;
 wire [word_size-1:0] dmem_data;
 wire dmem_wen;
+wire [3:0] byte_en;
 
 
 cpu dut 
@@ -51,7 +52,7 @@ cpu dut
 );
     
     // Change to the file you need
-rom #( .addr_width (address_size), .data_width (word_size), .init_file ("r_type.dat") )
+rom #( .addr_width (address_size), .data_width (word_size), .init_file ("addi_hazards.dat") )
 imem (
 .addr(imem_addr),
 .data(imem_insn)
@@ -62,10 +63,10 @@ dmem (
 .rst_n (rst_n),
 .clk (clk),
 .wen (dmem_wen),
+.byte_en (byte_en),
 .addr (dmem_addr),
 .data (dmem_data)
 );
-    
     
     
     
