@@ -1,6 +1,6 @@
 `timescale 1ms / 1ns
 module cpu(input rst_n,input clk,output reg [31:0] imem_addr,input reg [31:0] imem_insn,
-output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output reg [3:0] byte_en );
+output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, output reg [3:0] byte_en );
     
     reg[15:0] clock_counter; //incrementing counter by 1 during each pipeline phase 
     reg [31:0]imem_addr_reg, imem_insn_reg, dmem_addr_reg, dmem_data_reg;
@@ -30,6 +30,7 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
     reg unsigned [31:0] rd_write [31:0];
     //reg [31:0] rd_write [31:0];
     integer addi;
+    reg [1:0] ldst;
     
     assign imem_addr = imem_addr_reg;
     initial begin//set the file to be empty
@@ -205,6 +206,7 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                     case (opcode[6:0])
                         7'b0000011://load-type
                         begin 
+                            ldst <= 2'b00;
                             if(func3 == 3'b000)//lb
                             begin
                             if(rd_write[rd] === 32'bx) begin //if there exist no value
@@ -271,6 +273,7 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                         
                         7'b0100011://store-type
                         begin
+                            ldst <= 2'b01;
                             if(func3 == 3'b000)//sb
                             begin
                             immed32[11:0] <= immed12[11:0];
@@ -280,6 +283,8 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                                     ALU<= rs1 + immed32;
                                     Data <= rs2;
                                 end
+                            
+                                //alu[1:0]=2'b00;
                                 else begin
                                     ALU<= rd_write[rs1] + rd_write[immed32];
                                     Data <= rd_write[rs2][7:0];
@@ -301,6 +306,7 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                             end
                             if(func3 == 3'b010)//sw
                             begin
+                            //byte_en <= 4'b1111;
                             immed32[11:0] <= immed12[11:0];
                             immed32[31:12] <= {20{immed12[11]}};
                             byte_en <= 4'b1111;
@@ -626,10 +632,43 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                 
                 always @(posedge clk) begin
                 if(stall != 1) begin //entering mem access phase of pipeline
-                     clock_counter <= clock_counter + 1;
-                  //$display("Clock counter is...%b", clock_counter);
-                  $fdisplay(file_2,"Register number is...%h", rd);
-                  $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
+                
+                case(opcode)
+                    7'b0000011://load
+                    begin
+                        dmem_addr <= ALU;
+                        dmem_wen <=ldst[0];
+                        dmem_data <= Data;
+                    end
+                    
+                    7'b0100011://store
+                    begin
+                       dmem_addr <= ALU;
+                       dmem_wen <=ldst[0];
+                       byte_en <= 4'b1111;
+                       if(byte_en[0])
+                       begin
+                            dmem_data[7:0] <= Data[7:0];
+                       end
+                       if(byte_en[1])
+                       begin
+                            dmem_data[15:8] <= Data[15:8];
+                       end
+                       if(byte_en[2])
+                       begin
+                            dmem_data[23:16] <= Data[23:16];
+                       end
+                       if(byte_en[4])
+                       begin
+                        dmem_data[31:24] <= Data[31:24];
+                       end
+                    end
+                endcase
+//                     clock_counter <= clock_counter + 1;
+//                  //$display("Clock counter is...%b", clock_counter);
+//                  $fdisplay(file_2,"Register number is...%h", rd);
+//                  $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
+
                   
                 end
                 else if (stall) begin
@@ -640,12 +679,16 @@ output reg [31:0] dmem_addr,input [31:0] dmem_data, output reg dmem_wen, output 
                 
                 always @(posedge clk) begin      
                 if(stall != 1) begin //entering write back phase of pipeline
-                    clock_counter <= clock_counter + 1;
-                    //$display("Clock counter is...%b", clock_counter);
-                    //rd_write[rd] <= rd_reg;
-                    rd_final <= rd_reg;
-                   $fdisplay(file_2,"Register number is...%h", rd);
-                   $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
+                if(ldst == 2'b00)
+                begin
+                 rd_write[rd] <= Data;
+                end
+//                    clock_counter <= clock_counter + 1;
+//                    //$display("Clock counter is...%b", clock_counter);
+//                    //rd_write[rd] <= rd_reg;
+//                    rd_final <= rd_reg;
+//                   $fdisplay(file_2,"Register number is...%h", rd);
+//                   $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
                 end
                 else if (stall)begin
                     $display("Entering stall state.");    
