@@ -17,9 +17,16 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
     reg [11:0] immed12;
     reg [31:0] ALU, Data;
     
+    reg [1:0] lsb;
+    
     //load and store instruction
     reg [15:0] immed16;
     reg [31:0] immed32;
+    
+    //jal
+    reg [19:0] immed20;
+    reg [4:0]temp_rs1;
+    reg [4:0]temp_rs2; 
 
     reg [4:0] rd_reg, rd_final; //defining registers to hold values along with hazard detection
     reg [4:0] rd_previous;
@@ -27,10 +34,13 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
     integer count;
     integer i;
     integer PC;
+    integer c;
     reg unsigned [31:0] rd_write [31:0];
+    reg signed [31:0] memory [31:0];
     //reg [31:0] rd_write [31:0];
     integer addi;
     reg [1:0] ldst;
+    
     
     assign imem_addr = imem_addr_reg;
     initial begin//set the file to be empty
@@ -41,6 +51,11 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
         $fdisplay(" ");
         $fclose(file_2);
     end
+    
+    
+  
+    
+    
 
     always @(posedge clk) begin 
         if(!rst_n) begin //reseting all declared variables to known value
@@ -58,16 +73,20 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
              immed12 <= 12'b0;
              immed16 <= 16'b0;
              immed32 <= 32'b0;
+             immed20 <= 20'b0;
              ALU <= 32'b0;
              rd_reg <= 5'b0;
              rd_final <= 5'b0;
              stall = 0;
              count = 0;
              PC = 0;
+             c =0;
              for(i=0;i<32;i++)
-                rd_write[i]<=0;
+                rd_write[i]<=0;;
+            temp_rs1 = 5'b0;
+            temp_rs2 = 5'b0; 
+       end
              
-        end
         else begin 
             
                 if(stall != 1) begin //entering fetch phase of pipeline
@@ -104,6 +123,49 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                         begin
                     //opcode <= instr[6:0];
                   case(imem_insn_reg[6:0])
+                    7'b1100011://branch
+                    begin
+                            opcode <= imem_insn_reg[6:0];
+                            func3 <= imem_insn_reg[14:12];
+                            immed12 <= imem_insn_reg[31:25];
+                            rs1 <= imem_insn_reg[19:15];
+                            rs2 <= imem_insn_reg[24:20];
+                            rd <= imem_insn_reg[11:7];
+                            func7 <= 7'bx;
+                            shamt <= 5'bx;//empty not in use
+                    end
+                    
+                    7'b1101111://jal
+                    begin
+                        opcode <= imem_insn_reg[6:0];
+                        rd <= imem_insn_reg[11:7];
+                        immed20 <= imem_insn_reg[31:12];
+                    end
+                    
+                    7'b1100111://jalr
+                    begin
+                        opcode <= imem_insn_reg[6:0];
+                        rd <= imem_insn_reg[11:7];
+                        func3 <= imem_insn_reg[14:12];
+                        rs1 <= imem_insn_reg[19:15];
+                        immed12 <= imem_insn_reg[31:25];
+                    end
+                    
+                    7'b0010111://auipc
+                    begin
+                     opcode <= imem_insn_reg[6:0];
+                     rd <= imem_insn_reg[11:7];
+                     immed20 <= imem_insn_reg[31:12];
+                        
+                    end 
+                    
+                    7'b1100111://lui
+                    begin
+                        opcode <= imem_insn_reg[6:0];
+                        rd <= imem_insn_reg[11:7];
+                        immed20 <= imem_insn_reg[31:12];
+                    end
+                    
                     7'b0000011: //load-type
                     begin
                         opcode <= imem_insn_reg[6:0];
@@ -204,6 +266,85 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                     clock_counter <= clock_counter + 1;
                     //$display("Clock counter is...%b", clock_counter);
                     case (opcode[6:0])
+                            7'b1101111: begin //begin jal
+                            $display("JAL");
+                            PC<=PC+immed20;
+                        end
+                        7'b1100111: begin //begin jalr
+                            $display("JALR");
+                            if(rd_write[rs2] === 32'b0) begin
+                                temp_rs2 <= rs2;
+                            end
+                            PC<=PC+rs2+immed12;
+                        end
+                       7'b0010111: begin //begin auipc
+                            $display("AUIPC");
+                            rd_write[rd]<=PC+immed20;
+                        end
+                        7'b1100011: begin //begin branch
+                            case(func3)
+                                3'b001: begin //bne
+                                    if(rd_write[rs1] !== 32'b0) begin
+                                        rs1<=rd_write[rs1];
+                                    end
+                                    if(rd_write[rs2] !== 32'b0) begin
+                                        rs2<=rd_write[rs2];
+                                    end
+                                    if(rs1!= rs2) begin
+                                        $display("BNE");
+                                        PC <= PC +immed12;
+                                    end
+                                end
+                                3'b101: begin //bge
+                                    if(rd_write[rs1] !== 32'b0) begin
+                                        rs1<=rd_write[rs1];
+                                    end
+                                    if(rd_write[rs2] !== 32'b0) begin
+                                        rs2<=rd_write[rs2];
+                                    end
+                                    if(rs1>rs2) begin
+                                        $display("BGE");
+                                        PC <= PC +immed12;
+                                    end
+                                end
+                                3'b000: begin //BEQ
+                                if(rd_write[rs1] !== 32'b0) begin
+                                        rs1<=rd_write[rs1];
+                                    end
+                                    if(rd_write[rs2] !== 32'b0) begin
+                                        rs2<=rd_write[rs2];
+                                    end
+                                    if(rs1==rs2) begin
+                                        $display("BEQ");
+                                        PC <= PC +immed12;
+                                    end
+                                end
+                                3'b110: begin //BLTU
+                                    if(rd_write[rs1] !== 32'b0) begin
+                                        rs1<=rd_write[rs1];
+                                    end
+                                    if(rd_write[rs2] !== 32'b0) begin
+                                        rs2<=rd_write[rs2];
+                                    end
+                                    if(rs1<rs2) begin
+                                        $display("BLTU");
+                                        PC <= PC +immed12;
+                                    end
+                                end
+                                3'b111: begin //BGEU
+                                    if(rd_write[rs1] !== 32'b0) begin
+                                        rs1<=rd_write[rs1];
+                                    end
+                                    if(rd_write[rs2] !== 32'b0) begin
+                                        rs2<=rd_write[rs2];
+                                    end
+                                    if(rs1>=rs2) begin
+                                        $display("BGEU");
+                                        PC <= PC +immed12;
+                                    end
+                                end
+                            endcase
+                        end //end branch
                         7'b0000011://load-type
                         begin 
                             ldst <= 2'b00;
@@ -239,10 +380,12 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                             if(rd_write[rd] === 32'bx) begin //if there exist no value
                                     rd_write[rd]<= rs1 + immed32;
                                     ALU<= rs1 + immed32;
+                                    lsb <= ALU[1:0] & 2'b00;
                                 end
                                 else begin
                                     rd_write[rd]<= rd_write[rs1] + rd_write[immed32];
                                     ALU<= rd_write[rs1] + rd_write[immed32];
+                                    lsb <= ALU[1:0] & 2'b00;
                                 end
                             end 
                             if(func3 == 3'b100)//lbu
@@ -617,10 +760,7 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                             addi = 1'b0;    
                         end     
                     endcase
-                     
-                    
-                    
-                    
+
                    $fdisplay(file_2,"Register number is...%h", rd);
                    $fdisplay(file_2,"Register contents are...%h\n", rd_reg);
                 end
@@ -637,6 +777,7 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                     7'b0000011://load
                     begin
                         dmem_addr <= ALU;
+                        $display("load is selected, address: %h", dmem_addr);
                         dmem_wen <=ldst[0];
                         dmem_data <= Data;
                     end
@@ -676,7 +817,7 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
                 end
                 end
                 
-                
+
                 always @(posedge clk) begin      
                 if(stall != 1) begin //entering write back phase of pipeline
                 if(ldst == 2'b00)
@@ -700,3 +841,4 @@ output reg [31:0] dmem_addr,input reg [31:0] dmem_data, output reg dmem_wen, out
         $fclose(file_2);
     end
 endmodule
+
